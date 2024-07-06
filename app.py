@@ -34,4 +34,10 @@ class EV(db.Model):
         self.model = model
         self.year = year
         self.battery_capacity = battery_capacity
-        
+        self.range = range
+        self.charging_time = charging_time
+        self.price = price
+# EV Schema
+class EVSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = EV
