@@ -41,3 +41,24 @@ class EV(db.Model):
 class EVSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = EV
+
+# Initialize schema
+ev_schema = EVSchema()
+evs_schema = EVSchema(many=True)
+
+# Create an EV
+@app.route('/ev', methods=['POST'])
+def add_ev():
+    make = request.json['make']
+    model = request.json['model']
+    year = request.json['year']
+    battery_capacity = request.json['battery_capacity']
+    range = request.json['range']
+    charging_time = request.json['charging_time']
+    price = request.json['price']
+
+    new_ev = EV(make, model, year, battery_capacity, range, charging_time, price)
+    db.session.add(new_ev)
+    db.session.commit()
+
+    return ev_schema.jsonify(new_ev)
