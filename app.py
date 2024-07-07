@@ -62,3 +62,17 @@ def add_ev():
     db.session.commit()
 
     return ev_schema.jsonify(new_ev)
+
+# Get all EVs
+@app.route('/ev', methods=['GET'])
+def get_evs():
+    all_evs = EV.query.all()
+    result = evs_schema.dump(all_evs)
+    return jsonify(result)
+
+# Get a single EV
+@app.route('/ev/<id>', methods=['GET'])
+def get_ev(id):
+    ev = EV.query.get(id)
+    return ev_schema.jsonify(ev)
+
