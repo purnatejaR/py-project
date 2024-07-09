@@ -100,3 +100,16 @@ def update_ev(id):
     db.session.commit()
     return ev_schema.jsonify(ev)
 
+# Delete an EV
+@app.route('/ev/<id>', methods=['DELETE'])
+def delete_ev(id):
+    ev = EV.query.get(id)
+    db.session.delete(ev)
+    db.session.commit()
+    return ev_schema.jsonify(ev)
+
+# Run the server
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
