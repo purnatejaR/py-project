@@ -1,0 +1,20 @@
+.container {
+    width: 80%;
+    margin: auto;
+  }
+  
+  .orders-list {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .order-item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px 0;
+  }
+  
+  h2 {
+    margin-bottom: 20px;
+  }
+  
