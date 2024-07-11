@@ -1,0 +1,53 @@
+container {
+    width: 80%;
+    margin: auto;
+}
+
+.menu-items {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.menu-item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px;
+    width: 45%;
+}
+
+.item-details {
+    margin-bottom: 10px;
+}
+
+.item-actions {
+    display: flex;
+    justify-content: space-between;
+}
+
+.order-summary {
+    margin-top: 20px;
+}
+
+.order-item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px;
+}
+
+.total-amount {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #218838;
+}
