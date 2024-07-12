@@ -1,0 +1,92 @@
+/* Overall page style */
+body {
+    font-family: 'Georgia', serif;
+    background-color: #fdf5e6;
+    color: #6b4226;
+    margin: 0;
+    padding: 0;
+}
+
+/* Container */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Form */
+form {
+    background-color: #fff5e1;
+    padding: 20px;
+    border: 2px solid #e2b091;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+form div {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #6b4226;
+}
+
+input[type="text"],
+input[type="email"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e2b091;
+    border-radius: 5px;
+    box-sizing: border-box;
+    background-color: #fffaf3;
+}
+
+textarea {
+    height: 100px;
+    resize: none;
+}
+
+button[type="submit"] {
+    background-color: #ee9158;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Heading */
+h2 {
+    font-family: 'Brush Script MT', cursive;
+    color: #e07b3b;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Contact Messages List */
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+ul li {
+    background-color: #fff5e1;
+    border: 1px solid #e2b091;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+ul li p {
+    margin: 5px 0;
+}
