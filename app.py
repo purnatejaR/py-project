@@ -76,3 +76,40 @@ def get_ev(id):
     ev = EV.query.get(id)
     return ev_schema.jsonify(ev)
 
+# Update an EV
+@app.route('/ev/<id>', methods=['PUT'])
+def update_ev(id):
+    ev = EV.query.get(id)
+
+    make = request.json['make']
+    model = request.json['model']
+    year = request.json['year']
+    battery_capacity = request.json['battery_capacity']
+    range = request.json['range']
+    charging_time = request.json['charging_time']
+    price = request.json['price']
+
+    ev.make = make
+    ev.model = model
+    ev.year = year
+    ev.battery_capacity = battery_capacity
+    ev.range = range
+    ev.charging_time = charging_time
+    ev.price = price
+
+    db.session.commit()
+    return ev_schema.jsonify(ev)
+
+# Delete an EV
+@app.route('/ev/<id>', methods=['DELETE'])
+def delete_ev(id):
+    ev = EV.query.get(id)
+    db.session.delete(ev)
+    db.session.commit()
+    return ev_schema.jsonify(ev)
+
+# Run the server
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
