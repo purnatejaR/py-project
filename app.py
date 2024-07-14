@@ -317,7 +317,48 @@ def admin_delete_contact_message(message_id):
     db.session.commit()
     return jsonify(message='Contact message deleted successfully')
 
+@app.route('/api/contact-messages', methods=['POST'])
+def post_contact_message():
+    data = request.json
+    new_message = ContactMessage(
+        name=data['name'],
+        email=data['email'],
+        message=data['message'],
+        created_at=datetime.utcnow()  # Ensure to set the created_at field correctly
+    )
+    try:
+        db.session.add(new_message)
+        db.session.commit()
+        return jsonify({'message': 'Message sent successfully'}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 
+# Frontend React API endpoints should match these routes
+@app.route('/api/admin/vehicles', methods=['POST'])
+def add_vehicle():
+    data = request.json
+    make = data.get('make')
+    model = data.get('model')
+    year = data.get('year')
+    battery_capacity = data.get('battery_capacity')
+    range_km = data.get('range_km')
+    charging_time = data.get('charging_time')
+    price = data.get('price')
+
+    if not make or not model or not year or not battery_capacity or not range_km or not charging_time or not price:
+        return jsonify({'error': 'All fields are required'}), 400
+
+    new_vehicle = Vehicle(make=make, model=model, year=year, battery_capacity=battery_capacity, range_km=range_km, charging_time=charging_time, price=price)
+
+    try:
+        db.session.add(new_vehicle)
+        db.session.commit()
+        return jsonify({'message': 'Vehicle added successfully'}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+    
 # Run the server
 if __name__ == '__main__':
     app.run(debug=True)
