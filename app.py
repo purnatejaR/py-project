@@ -85,9 +85,9 @@ class Review(db.Model):
     __tablename__ = 'reviews'
 
     review_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    vehicle_id = db.Column(db.Integer, db.ForeignKey('vehicles.vehicle_id'))
-    station_id = db.Column(db.Integer, db.ForeignKey('chargingstations.station_id'))
+    username = db.Column(db.String, nullable=False)
+    vehicle = db.Column(db.String, nullable=False)
+    station_name = db.Column(db.String, nullable = False)
     rating = db.Column(db.Integer, nullable=False)
     review_text = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -106,7 +106,7 @@ class Review(db.Model):
 class ContactMessage(db.Model):
     __tablename__ = 'contact_messages'
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), nullable=False)
     message = db.Column(db.Text, nullable=False)
