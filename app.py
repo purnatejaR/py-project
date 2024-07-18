@@ -1,4 +1,4 @@
-from flask import Flask,request,jsonify,session,redirect,url_for
+from flask import Flask, request, jsonify, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
@@ -6,13 +6,11 @@ import os
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app) 
+CORS(app)
 app.secret_key = os.urandom(24)
-# Database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@localhost/Electric_Vehicles'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Initialize SQLAlchemy
 db = SQLAlchemy(app)
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
@@ -49,18 +47,19 @@ class Vehicle(db.Model):
     price = db.Column(db.Numeric(10, 2), nullable=False)
     availability = db.Column(db.String(20), default='available')
 
-    def serialize(self):
+    def to_dict(self):
         return {
             'vehicle_id': self.vehicle_id,
             'make': self.make,
             'model': self.model,
             'year': self.year,
-            'better_capacity': self.battery_capacity,
+            'battery_capacity': self.battery_capacity,
             'range_km': self.range_km,
-            'charging_time':self.charging_time,
-            'price':self.price,
+            'charging_time': self.charging_time,
+            'price': str(self.price),
             'availability': self.availability
         }
+        
 class ChargingStation(db.Model):
     __tablename__ = 'chargingstations'
 
@@ -81,6 +80,7 @@ class ChargingStation(db.Model):
             'availability': self.availability,
             'pricing':self.pricing,
         }
+        
 class Review(db.Model):
     __tablename__ = 'reviews'
 
@@ -102,16 +102,16 @@ class Review(db.Model):
             'review_text': self.review_text,
             'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S')
         }
-
+    
 class ContactMessage(db.Model):
     __tablename__ = 'contact_messages'
 
-    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), nullable=False)
     message = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
+    
     def serialize(self):
         return {
             'id': self.id,
@@ -120,7 +120,7 @@ class ContactMessage(db.Model):
             'message': self.message,
             'created_at': self.created_at
         }
-    
+
 # Routes
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -140,7 +140,9 @@ def register():
         db.session.add(new_user)
         db.session.commit()
         return jsonify({'message': 'User registered successfully'}), 201
-    
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({'error': 'Username or email already exists'}), 409
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
@@ -166,30 +168,76 @@ def logout():
     session.pop('user_id', None)
     return jsonify({'message': 'Logged out successfully'}), 200
 
-@app.route('/api/vehicles', methods=['GET'])
-def get_vehicles():
-    vehicles = Vehicle.query.all()
-    return jsonify([vehicle.serialize() for vehicle in vehicles])
+# API endpoint to get all users
+@app.route('/api/admin/users', methods=['GET'])
+def get_users():
+    try:
+        users = User.query.all()
+        user_list = []
+        for user in users:
+            user_data = {
+                'user_id': user.user_id,
+                'username': user.username,
+                'email': user.email,
+                'full_name': user.full_name,
+                'role': user.role
+            }
+            user_list.append(user_data)
+        return jsonify(user_list), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/admin/vehicles', methods=['GET'])
-def get_admin_vehicles():
+def get_all_vehicles():
     vehicles = Vehicle.query.all()
-    return jsonify([vehicle.serialize() for vehicle in vehicles])
+    return jsonify([vehicle.to_dict() for vehicle in vehicles]), 200
+
+@app.route('/api/admin/vehicles/<int:vehicle_id>', methods=['GET'])
+def get_adminvehicle(vehicle_id):
+    vehicle = Vehicle.query.get(vehicle_id)
+    if not vehicle:
+        return jsonify({'error': 'Vehicle not found'}), 404
+    return jsonify(vehicle.to_dict()), 200
 
 @app.route('/api/admin/vehicles/<int:vehicle_id>', methods=['PUT'])
 def update_vehicle(vehicle_id):
-    vehicle = Vehicle.query.get_or_404(vehicle_id)
-    data = request.json
-    vehicle.make = data['make']
-    vehicle.model = data['model']
-    vehicle.year = data['year']
-    vehicle.battery_capacity = data['battery_capacity']
-    vehicle.range_km = data['range_km']
-    vehicle.charging_time = data['charging_time']
-    vehicle.price = data['price']
-    vehicle.availability = data.get('availability', 'available')  # Default 'availability' to 'available' if not provided
+    data = request.get_json()
+    vehicle = Vehicle.query.get(vehicle_id)
+    
+    if not vehicle:
+        return jsonify({'error': 'Vehicle not found'}), 404
+
+    vehicle.make = data.get('make', vehicle.make)
+    vehicle.model = data.get('model', vehicle.model)
+    vehicle.year = data.get('year', vehicle.year)
+    vehicle.battery_capacity = data.get('battery_capacity', vehicle.battery_capacity)
+    vehicle.range_km = data.get('range_km', vehicle.range_km)
+    vehicle.charging_time = data.get('charging_time', vehicle.charging_time)
+    vehicle.price = data.get('price', vehicle.price)
+    vehicle.availability = data.get('availability', vehicle.availability)
+    
     db.session.commit()
-    return jsonify(message='Vehicle updated successfully')
+    
+    return jsonify({'message': 'Vehicle updated successfully'}), 200
+
+@app.route('/api/vehicles/<int:vehicle_id>', methods=['GET'])
+def get_idvehicles(vehicle_id):
+    try:
+        vehicle = Vehicle.query.filter_by(vehicle_id=vehicle_id).first()
+        if vehicle:
+            return jsonify(vehicle.to_dict())
+        else:
+            return jsonify({'error': 'Vehicle not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/api/vehicles', methods=['GET'])
+def get_vehicle():
+    try:
+        vehicles = Vehicle.query.all()
+        return jsonify([vehicle.to_dict() for vehicle in vehicles])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/admin/vehicles/<int:vehicle_id>', methods=['DELETE'])
 def delete_vehicle(vehicle_id):
@@ -358,9 +406,7 @@ def add_vehicle():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
-    
-# Run the server
+
+#run the server
 if __name__ == '__main__':
     app.run(debug=True)
-
-
